@@ -8,6 +8,8 @@ import org.gridgain.grid.cache.GridCache;
 import org.gridgain.grid.cache.GridCacheConfiguration;
 import org.gridgain.grid.cache.GridCacheMode;
 import org.gridgain.grid.cache.store.local.GridCacheFileLocalStore;
+import org.gridgain.grid.dr.cache.receiver.GridDrReceiverCacheConfiguration;
+import org.gridgain.grid.dr.cache.receiver.GridDrReceiverCacheConflictResolverMode;
 import org.gridgain.grid.lang.GridBiPredicate;
 import org.gridgain.grid.marshaller.jdk.GridJdkMarshaller;
 import org.gridgain.grid.spi.GridSpiException;
@@ -63,6 +65,7 @@ public class StoreTest {
 
     private UUID startNode(String name) throws GridException {
         GridConfiguration cfg = new GridConfiguration();
+        cfg.setDataCenterId((byte) 1);
         cfg.setGridName(name);
         GridCacheConfiguration cacheCfg = cache(name);
         cfg.setCacheConfiguration(cacheCfg);
@@ -88,8 +91,11 @@ public class StoreTest {
         cache.setQueryIndexEnabled(true);
         cache.setCacheMode(GridCacheMode.REPLICATED);
         GridCacheFileLocalStore<Object, Object> store = new GridCacheFileLocalStore<>();
-        store.setRootPath("store_file_" + name);
+        store.setRootPath("store_file" + name);
         cache.setStore(store);
+        GridDrReceiverCacheConfiguration drReceiverCfg = new GridDrReceiverCacheConfiguration();
+        drReceiverCfg.setConflictResolverMode(GridDrReceiverCacheConflictResolverMode.DR_AUTO);
+        cache.setDrReceiverConfiguration(drReceiverCfg);
         return cache;
     }
 
